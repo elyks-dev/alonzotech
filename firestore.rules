@@ -1,0 +1,157 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function isAdmin() {
+      return signedIn()
+        && get(/databases/$(database)/documents/users/$(request.auth.uid))
+          .data.get('role', 'user') == 'admin';
+    }
+
+    match /users/{uid} {
+      allow read: if signedIn();
+      allow create: if isOwner(uid)
+        && request.resource.data.get('role', 'user') == 'user';
+      allow update: if isOwner(uid)
+        && request.resource.data.get('role', 'user') == resource.data.get('role', 'user');
+      allow delete: if false;
+    }
+
+    match /posts/{postId} {
+      allow read: if true;
+      allow create: if signedIn()
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.keys().hasOnly([
+          'uid', 'name', 'username', 'photoURL', 'text', 'createdAt', 'likes', 'repliesCount'
+        ])
+        && request.resource.data.text is string
+        && request.resource.data.text.size() >= 1
+        && request.resource.data.text.size() <= 350
+        && request.resource.data.likes == 0
+        && request.resource.data.repliesCount == 0;
+      allow update: if signedIn()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'likes', 'repliesCount'
+        ])
+        || (isOwner(resource.data.uid)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'name', 'username', 'photoURL', 'text', 'editedAt'
+          ])
+          && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['text'])
+            || (request.resource.data.text is string
+              && request.resource.data.text.matches('.*\\S.*')
+              && request.resource.data.text.size() <= 350)));
+      allow delete: if isOwner(resource.data.uid) || isAdmin();
+
+      match /likes/{uid} {
+        allow read: if true;
+        allow create: if isOwner(uid)
+          && request.resource.data.uid == request.auth.uid;
+        allow delete: if isOwner(uid)
+          || (signedIn()
+            && get(/databases/$(database)/documents/posts/$(postId)).data.uid == request.auth.uid);
+        allow update: if isOwner(uid)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'name', 'username', 'photoURL'
+          ]);
+      }
+
+      match /replies/{replyId} {
+        allow read: if true;
+        allow create: if signedIn()
+          && request.resource.data.uid == request.auth.uid
+          && request.resource.data.keys().hasOnly([
+            'uid', 'name', 'username', 'photoURL', 'text', 'createdAt'
+          ])
+          && request.resource.data.text is string
+          && request.resource.data.text.size() >= 1
+          && request.resource.data.text.size() <= 350;
+        allow update: if isOwner(resource.data.uid)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'name', 'username', 'photoURL'
+          ]);
+        allow delete: if isOwner(resource.data.uid)
+          || isAdmin()
+          || (signedIn()
+            && get(/databases/$(database)/documents/posts/$(postId)).data.uid == request.auth.uid);
+      }
+    }
+
+    match /articles/{articleId} {
+      allow read: if true;
+      allow create: if request.auth != null
+        && request.resource.data.authorId == request.auth.uid
+        && request.resource.data.title is string
+        && request.resource.data.title.size() > 0
+        && request.resource.data.title.size() <= 120
+        && request.resource.data.imageUrl is string;
+      allow update: if request.auth != null
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'likes', 'repliesCount'
+        ]);
+      allow update: if request.auth != null
+        && resource.data.get('authorId', '') == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'title', 'description', 'imageUrl', 'link', 'editedAt',
+          'authorName', 'authorUsername', 'authorPhotoURL'
+        ])
+        && request.resource.data.title is string
+        && request.resource.data.title.size() > 0
+        && request.resource.data.title.size() <= 120
+        && request.resource.data.imageUrl is string;
+      allow delete: if request.auth != null
+        && resource.data.get('authorId', '') == request.auth.uid;
+
+      match /replies/{replyId} {
+        allow read: if true;
+        allow create: if request.auth != null
+          && request.resource.data.uid == request.auth.uid
+          && request.resource.data.keys().hasOnly([
+            'uid', 'name', 'username', 'photoURL', 'text', 'createdAt'
+          ])
+          && request.resource.data.text is string
+          && request.resource.data.text.size() >= 1
+          && request.resource.data.text.size() <= 350;
+        allow update: if request.auth != null
+          && resource.data.get('uid', '') == request.auth.uid
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'name', 'username', 'photoURL'
+          ]);
+        allow delete: if request.auth != null
+          && (resource.data.get('uid', '') == request.auth.uid
+            || get(/databases/$(database)/documents/articles/$(articleId)).data.get('authorId', '') == request.auth.uid);
+      }
+
+      match /likes/{likeId} {
+        allow read: if true;
+        allow create: if request.auth != null
+          && likeId == request.auth.uid
+          && request.resource.data.uid == request.auth.uid;
+        allow update: if request.auth != null
+          && likeId == request.auth.uid
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'name', 'username', 'photoURL'
+          ]);
+        allow delete: if request.auth != null
+          && (likeId == request.auth.uid
+            || get(/databases/$(database)/documents/articles/$(articleId)).data.get('authorId', '') == request.auth.uid);
+      }
+    }
+
+    match /{path=**}/replies/{id} {
+      allow read: if true;
+    }
+
+    match /{path=**}/likes/{id} {
+      allow read: if true;
+    }
+  }
+}
