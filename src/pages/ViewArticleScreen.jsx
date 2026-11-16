@@ -9,6 +9,7 @@ import LikesModal from '../components/LikesModal'
 import ImageLightbox from '../components/ImageLightbox'
 import { ArticleFormModal } from '../screens/ArticlesScreen'
 import { addReply, deleteAllEngagement, loadReplies, toggleLike } from '../services/engagement'
+import ProfileLink from '../components/ProfileLink'
 
 const REPLY_MAX_LENGTH = 350
 
@@ -136,7 +137,7 @@ function ViewArticleScreen() {
       <div className="px-5 pb-12">
         {imageFailed ? <div className="mx-auto flex h-64 max-w-md items-center justify-center rounded-xl border border-gray-200 bg-gray-100 text-sm text-gray-400 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-500">Image unavailable</div> : <button type="button" onClick={() => setShowImage(true)} aria-label="View image" className="mx-auto mt-6 block max-h-[360px] max-w-md cursor-zoom-in overflow-hidden rounded-xl border border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-900"><img src={article.imageUrl} alt="" className="max-h-[360px] max-w-full object-contain" onError={() => setImageFailed(true)} /></button>}
         <h1 className="mt-6 text-3xl font-extrabold text-gray-900 dark:text-gray-100">{article.title}</h1>
-        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">{article.authorName} <span className="mx-1">·</span> {formatDate(article.createdAt)}{article.editedAt && ' · edited'}</p>
+        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400"><ProfileLink uid={article.authorId} label={`View ${article.authorName}'s profile`} className="hover:underline">{article.authorName}</ProfileLink> <span className="mx-1">·</span> {formatDate(article.createdAt)}{article.editedAt && ' · edited'}</p>
         {article.description && <p className="mt-6 whitespace-pre-wrap leading-relaxed text-gray-700 dark:text-gray-300">{article.description}</p>}
         {article.link && <a href={article.link} target="_blank" rel="noopener noreferrer" className="mt-6 inline-block break-all text-blue-600 underline">{new URL(article.link).hostname}</a>}
         <div className="mt-6 flex items-center gap-5 text-sm text-gray-500 dark:text-gray-400">
@@ -150,7 +151,7 @@ function ViewArticleScreen() {
           {repliesError && <p className="mt-3 text-sm text-red-600">{repliesError}</p>}
           {repliesLoading && <div className="mt-5 motion-safe:animate-pulse"><div className="h-4 w-32 rounded bg-gray-200 dark:bg-gray-800" /><div className="mt-3 h-4 w-4/5 rounded bg-gray-200 dark:bg-gray-800" /></div>}
           {!repliesLoading && !replies.length && <p className="py-6 text-sm text-gray-500 dark:text-gray-400">No replies yet.</p>}
-          {!repliesLoading && replies.map((reply, index) => <div key={reply.id} className={`flex gap-3 py-4 ${index < replies.length - 1 ? 'border-b border-gray-200 dark:border-gray-800' : ''}`}><Avatar name={reply.name} photoURL={reply.photoURL} className="h-9 w-9" /><div className="min-w-0 flex-1"><p className="text-sm font-bold">{reply.name}</p><p className="text-xs text-gray-500 dark:text-gray-400">{reply.username?.startsWith('@') ? reply.username : `@${reply.username || ''}`}</p><p className="mt-1 whitespace-pre-wrap break-words text-sm">{reply.text}</p><p className="mt-1.5 text-xs text-gray-500 dark:text-gray-400">{formatDate(reply.createdAt)}</p></div></div>)}
+          {!repliesLoading && replies.map((reply, index) => <div key={reply.id} className={`flex gap-3 py-4 ${index < replies.length - 1 ? 'border-b border-gray-200 dark:border-gray-800' : ''}`}><ProfileLink uid={reply.uid} label={`View ${reply.name}'s profile`} tabIndex={-1} aria-hidden="true" className="self-start rounded-full transition hover:ring-2 hover:ring-blue-100 dark:hover:ring-blue-900/40"><Avatar name={reply.name} photoURL={reply.photoURL} className="h-9 w-9" /></ProfileLink><div className="min-w-0 flex-1"><ProfileLink uid={reply.uid} label={`View ${reply.name}'s profile`} className="block hover:underline"><p className="text-sm font-bold">{reply.name}</p><p className="text-xs text-gray-500 dark:text-gray-400">{reply.username?.startsWith('@') ? reply.username : `@${reply.username || ''}`}</p></ProfileLink><p className="mt-1 whitespace-pre-wrap break-words text-sm">{reply.text}</p><p className="mt-1.5 text-xs text-gray-500 dark:text-gray-400">{formatDate(reply.createdAt)}</p></div></div>)}
         </section>
       </div>
       <button type="button" onClick={() => document.querySelector('.main-content')?.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Scroll to top" aria-hidden={!showScrollTop} tabIndex={showScrollTop ? undefined : -1} className={`fixed bottom-6 right-6 z-30 flex h-[52px] w-[52px] items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 transition duration-200 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500/40 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800 motion-reduce:transition-none ${showScrollTop ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-2 opacity-0'}`}><ArrowUp size={22} /></button>

@@ -8,6 +8,7 @@ import AccountScreen from './screens/AccountScreen'
 import HomeScreen from './screens/HomeScreen'
 import SettingsScreen from './screens/SettingsScreen'
 import ViewArticleScreen from './pages/ViewArticleScreen'
+import ViewProfileScreen from './pages/ViewProfileScreen'
 import './App.css'
 import { ThemeProvider } from './context/ThemeContext'
 
@@ -36,6 +37,7 @@ function App() {
             <Route element={<MainLayout />}>
               <Route path="/articles" element={<ArticlesScreen />} />
               <Route path="/articles/:id" element={<ViewArticleScreen />} />
+              <Route path="/profile/:uid" element={<ViewProfileScreen />} />
             </Route>
             <Route element={<ProtectedRoute />}>
               <Route element={<MainLayout />}>

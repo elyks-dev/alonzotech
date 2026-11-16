@@ -3,6 +3,7 @@ import { getDoc, doc } from 'firebase/firestore'
 import Avatar from './Avatar'
 import { db } from '../lib/firebase'
 import { loadLikes } from '../services/engagement'
+import ProfileLink from './ProfileLink'
 
 const cache = new Map()
 function loadProfile(uid) {
@@ -27,7 +28,7 @@ export default function LikesModal({ parentCollection, parentId, likesCount = 0,
       {loading && <p className="text-sm text-gray-500">Loading...</p>}
       {!loading && error && <p className="text-sm text-red-600">{error}</p>}
       {!loading && !error && !likes.length && <p className="text-sm text-gray-500">No likes yet</p>}
-      {!loading && !error && likes.map((like) => <div className="flex items-center gap-3 border-b border-gray-200 py-3 dark:border-gray-800" key={like.id}><Avatar name={like.name} photoURL={like.photoURL} /><div className="min-w-0"><p className="truncate text-sm font-bold">{like.name}</p>{like.username && <p className="truncate text-sm text-gray-500">{like.username}</p>}</div></div>)}
+      {!loading && !error && likes.map((like) => <div className="flex items-center gap-3 border-b border-gray-200 py-3 dark:border-gray-800" key={like.id}><ProfileLink uid={like.uid} label={`View ${like.name}'s profile`} tabIndex={-1} aria-hidden="true" className="self-start rounded-full transition hover:ring-2 hover:ring-blue-100 dark:hover:ring-blue-900/40"><Avatar name={like.name} photoURL={like.photoURL} /></ProfileLink><ProfileLink uid={like.uid} label={`View ${like.name}'s profile`} className="min-w-0 hover:underline"><p className="truncate text-sm font-bold">{like.name}</p>{like.username && <p className="truncate text-sm text-gray-500">{like.username}</p>}</ProfileLink></div>)}
       {!loading && !error && count > 50 && <p className="pt-3 text-center text-xs text-gray-500 dark:text-gray-400">Showing the first 50 likes</p>}
     </section>
   </div>

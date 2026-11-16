@@ -33,6 +33,7 @@ import { db } from '../lib/firebase'
 import { useAuth } from '../context/AuthContext'
 import { addReply as addSharedReply, toggleLike as toggleSharedLike } from '../services/engagement'
 import SharedLikesModal from '../components/LikesModal'
+import ProfileLink from '../components/ProfileLink'
 
 const PAGE_SIZE = 10
 const POST_MAX_LENGTH = 350
@@ -220,10 +221,9 @@ function ReplyModal({ post, onClose, onSubmit }) {
         <div ref={middleRef} className="thin-scrollbar min-h-0 flex-1 overflow-y-auto px-5">
           <article className="border-b border-gray-200 pb-4 dark:border-gray-800">
             <div className="flex gap-3">
-              <Avatar name={post.name} photoURL={post.photoURL} />
+              <ProfileLink uid={post.uid} label={`View ${post.name}'s profile`} tabIndex={-1} aria-hidden="true" className="self-start rounded-full transition hover:ring-2 hover:ring-blue-100 dark:hover:ring-blue-900/40"><Avatar name={post.name} photoURL={post.photoURL} /></ProfileLink>
               <div className="min-w-0 flex-1">
-                <p className="font-bold">{post.name}</p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">{post.username}</p>
+                <ProfileLink uid={post.uid} label={`View ${post.name}'s profile`} className="block hover:underline"><p className="font-bold">{post.name}</p><p className="text-sm text-gray-500 dark:text-gray-400">{post.username}</p></ProfileLink>
               </div>
             </div>
             <p className="mt-2 whitespace-pre-wrap break-words text-[15px]">{post.text}</p>
@@ -235,11 +235,10 @@ function ReplyModal({ post, onClose, onSubmit }) {
             {replies.map((reply, index) => (
               <div className={`flex gap-3 py-4 ${index < replies.length - 1 ? 'border-b border-gray-200 dark:border-gray-800' : ''}`} key={reply.id}>
                 <div className="[&>*]:h-9 [&>*]:w-9">
-                  <Avatar name={reply.name} photoURL={reply.photoURL} />
+                  <ProfileLink uid={reply.uid} label={`View ${reply.name}'s profile`} tabIndex={-1} aria-hidden="true" className="self-start rounded-full transition hover:ring-2 hover:ring-blue-100 dark:hover:ring-blue-900/40"><Avatar name={reply.name} photoURL={reply.photoURL} /></ProfileLink>
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-bold">{reply.name}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{reply.username?.startsWith('@') ? reply.username : `@${reply.username || ''}`}</p>
+                  <ProfileLink uid={reply.uid} label={`View ${reply.name}'s profile`} className="block hover:underline"><p className="text-sm font-bold">{reply.name}</p><p className="text-xs text-gray-500 dark:text-gray-400">{reply.username?.startsWith('@') ? reply.username : `@${reply.username || ''}`}</p></ProfileLink>
                   <p className="mt-1 whitespace-pre-wrap break-words text-sm">{reply.text}</p>
                   <p className="mt-1.5 text-xs text-gray-500 dark:text-gray-400">{formatPostDate(reply.createdAt)}</p>
                 </div>
@@ -542,11 +541,10 @@ function HomeScreen() {
               const isLiked = likedPosts.has(post.id)
               return (
                 <article key={post.id} className="flex gap-3 border-b border-gray-200 p-5 transition hover:bg-gray-50/60 dark:border-gray-800 dark:hover:bg-gray-800/60">
-                  <Avatar name={post.name} photoURL={post.photoURL} />
+                  <ProfileLink uid={post.uid} label={`View ${post.name}'s profile`} tabIndex={-1} aria-hidden="true" className="self-start rounded-full transition hover:ring-2 hover:ring-blue-100 dark:hover:ring-blue-900/40"><Avatar name={post.name} photoURL={post.photoURL} /></ProfileLink>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1">
-                      <span className="truncate text-sm font-bold">{post.name}</span>
-                      <span className="truncate text-sm text-gray-500 dark:text-gray-400">{post.username}</span>
+                      <ProfileLink uid={post.uid} label={`View ${post.name}'s profile`} className="flex min-w-0 items-center gap-1 hover:underline"><span className="truncate text-sm font-bold">{post.name}</span><span className="truncate text-sm text-gray-500 dark:text-gray-400">{post.username}</span></ProfileLink>
                       <span className="text-gray-400">·</span>
                       <span className="shrink-0 text-sm text-gray-500 dark:text-gray-400">{formatPostDate(post.createdAt)}{post.editedAt && ' · edited'}</span>
                       {profileUid === post.uid && (
