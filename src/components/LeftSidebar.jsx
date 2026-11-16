@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext'
 const navigation = [
   { label: 'Home', path: '/', icon: Home },
   { label: 'Articles', path: '/articles', icon: Newspaper },
-  { label: 'Account', path: '/account', icon: User },
+  { label: 'Profile', path: '/account', icon: User },
 ]
 
 function Sidebar() {

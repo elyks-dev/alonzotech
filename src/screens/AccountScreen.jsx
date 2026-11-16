@@ -163,7 +163,7 @@ function AccountScreen() {
 
   return (
     <div className="min-h-screen bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100">
-      <header className="sticky top-0 z-20 flex items-center justify-between border-b border-gray-200 bg-white/90 px-5 py-4 backdrop-blur-md dark:border-gray-800 dark:bg-gray-950/90"><h1 className="text-xl font-extrabold text-gray-900 dark:text-gray-100">Account</h1><Link to="/settings" aria-label="Settings" className="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"><Settings size={21} /></Link></header>
+      <header className="sticky top-0 z-20 flex items-center justify-between border-b border-gray-200 bg-white/90 px-5 py-4 backdrop-blur-md dark:border-gray-800 dark:bg-gray-950/90"><h1 className="text-xl font-extrabold text-gray-900 dark:text-gray-100">Profile</h1><Link to="/settings" aria-label="Settings" className="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"><Settings size={21} /></Link></header>
       <section className="flex flex-wrap items-center gap-4 border-b border-gray-200 p-5 dark:border-gray-800">
         {profile.photoURL && !profileImageFailed ? (
           <button type="button" onClick={() => setShowProfileImage(true)} aria-label="View profile picture" className="cursor-pointer rounded-full transition hover:ring-4 hover:ring-blue-100 dark:hover:ring-blue-900/40">
